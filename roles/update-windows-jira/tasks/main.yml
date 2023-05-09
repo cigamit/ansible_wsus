@@ -82,7 +82,7 @@
         password: '{{ jira_password }}'
         issue: '{{ issue.meta.key }}'
         operation: comment
-        comment: "{{ update_result.updates | map(attribute='title') | to_yaml }}"
+        comment: "{{ update_result.updates | to_yaml }}"
       delegate_to: localhost
       
     - name: Transition the issue
