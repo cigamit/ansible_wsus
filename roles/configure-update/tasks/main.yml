@@ -1,0 +1,57 @@
+- name: Configure WUServer
+  win_regedit:
+    key: HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate
+    value: WUServer
+    data: "http://{{ wsus_server }}:8530"
+    datatype: string
+  when: wsus_server is defined
+  notify: ClearSID
+
+- name: Configure WUStatusServer
+  win_regedit:
+    key: HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate
+    value: WUStatusServer
+    data: "http://{{ wsus_server }}:8530"
+    datatype: string
+  when: wsus_server is defined
+  notify: ClearSID
+
+- name: Ensure Target Group is enabled
+  win_regedit:
+    key: HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate
+    value: TargetGroupEnabled
+    data: "{{ wsus_TargetGroupEnabled }}"
+    datatype: dword
+  notify: RestartWU
+
+- name: Ensure Target Group is set
+  win_regedit:
+    key: HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate
+    value: TargetGroup
+    data: "{{ wsus_TargetGroup }}"
+    datatype: string
+  notify: RestartWU
+
+- name: Configure who can approve updates
+  win_regedit:
+    key: HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate
+    value: ElevateNonAdmins
+    data: "{{ wsus_ElevateNonAdmins }}"
+    datatype: dword
+  notify: RestartWU
+
+- name: Configure Automatic updates
+  win_regedit:
+    key: HKLM:\Software\Policies\Microsoft\Windows\WindowsUpdate\AU
+    value: "{{ item.v }}"
+    data: "{{ item.d }}"
+    datatype: dword
+  with_items:
+    - { v: AUOptions, d: "{{ wsus_AUOptions }}" }
+    - { v: NoAutoUpdate, d: "{{ wsus_NoAutoUpdate }}" }
+    - { v: RebootWarningTimeoutEnabled, d: "{{ wsus_RebootWarningTimeoutEnabled }}" }
+    - { v: UseWUServer, d: "{{ wsus_UseWUServer }}" }
+  notify: RestartWU
+
+- name: Run Handlers
+  meta: flush_handlers
