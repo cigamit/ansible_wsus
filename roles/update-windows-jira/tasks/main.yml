@@ -31,8 +31,8 @@
       
 - name: Create VMWare snapshot
   vmware_guest_snapshot:
-    datacenter: MNS
-    folder: /MNS/vm/POC/Demo
+    datacenter: Central
+    folder: /Tigers/vm/Ansible/Jimmy/Demos
     name: "{{ inventory_hostname }}"
     state: present
     memory_dump: yes
@@ -98,8 +98,8 @@
   rescue:
     - name: Revert the VMWare snapshot
       vmware_guest_snapshot:
-        datacenter: MNS
-        folder: /MNS/vm/POC/Demo
+        datacenter: Central
+        folder: /Tigers/vm/Ansible/Jimmy/Demos
         name: "{{ inventory_hostname }}"
         snapshot_name: Updates
         state: revert
@@ -129,8 +129,8 @@
 
 - name: Remove VMWare snapshot
   vmware_guest_snapshot:
-    datacenter: MNS
-    folder: /MNS/vm/POC/Demo
+    datacenter: Central
+    folder: /Tigers/vm/Ansible/Jimmy/Demos
     name: "{{ inventory_hostname }}"
     snapshot_name: Updates
     state: absent
