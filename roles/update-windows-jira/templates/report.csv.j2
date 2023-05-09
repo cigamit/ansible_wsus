@@ -1,0 +1,9 @@
+{{ inventory_hostname }},{{ update_result.reboot_required }},{{ update_result.found_update_count | default("0") }},{{ update_result.installed_update_count | default("0")}},{{ update_result.failed_update_count | default("0") }},"{%- for u in update_result.updates -%}
+{%- if update_result.updates[u].failure_hresult_code is not defined -%}
+{{- "kb" + update_result.updates[u]["kb"][0] + "\n" -}}
+{%- endif -%}
+{%- endfor -%}","{%- for u in update_result.updates -%}
+{%- if update_result.updates[u].failure_hresult_code is defined -%}
+{{- "kb" + update_result.updates[u]["kb"][0] + "\n" -}}
+{%- endif -%}
+{%- endfor -%}"
