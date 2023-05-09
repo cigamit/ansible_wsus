@@ -1,0 +1,23 @@
+- name: Clear SID
+  win_regedit:
+    path: HKLM:\Software\Microsoft\Windows\CurrentVersion\WindowsUpdate
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - SusClientId
+    - PingID
+    - AccountDomainSid
+  listen: ClearSID
+  notify: RestartWU
+
+- name: Restart Windows Update
+  win_service:
+    name: wuauserv
+    state: restarted
+  listen: RestartWU
+  notify: RegisterWSUS
+
+- name: Register with the WSUS server
+  win_shell: wuauclt.exe /resetauthorization /detectnow
+  when: register_with_wsus | bool
+  listen: RegisterWSUS
