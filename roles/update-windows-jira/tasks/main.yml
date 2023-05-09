@@ -1,0 +1,153 @@
+- name: Create an issue in Jira
+  jira:
+    uri: https://ansiblelab.atlassian.net
+    username: '{{ jira_username }}'
+    password: '{{ jira_password }}'
+    project: AN
+    operation: create
+    summary: Windows Updates - {{ inventory_hostname }}
+    description: |
+                 Beginning installed of Windows Updates
+                 Categories: {{ categories | join(", ") }}
+                 Reboot: {{ reboot_server }}
+    issuetype: Task
+  register: issue
+  delegate_to: localhost
+
+- name: Set the labels on an issue using free-form fields
+  jira:
+    uri: https://ansiblelab.atlassian.net
+    username: '{{ jira_username }}'
+    password: '{{ jira_password }}'
+    issue: '{{ issue.meta.key }}'
+    operation: edit
+  args:
+    fields:
+        labels:
+          - ansible
+          - windows
+          - updates
+  delegate_to: localhost
+      
+- name: Create VMWare snapshot
+  vmware_guest_snapshot:
+    datacenter: MNS
+    folder: /MNS/vm/POC/Demo
+    name: "{{ inventory_hostname }}"
+    state: present
+    memory_dump: yes
+    snapshot_name: Updates
+    description: Snapshot before doing updates
+  delegate_to: localhost
+
+- name: Add Comment on Jira issue
+  jira:
+    uri: https://ansiblelab.atlassian.net
+    username: '{{ jira_username }}'
+    password: '{{ jira_password }}'
+    issue: '{{ issue.meta.key }}'
+    operation: comment
+    comment: Snapshot Created
+  delegate_to: localhost
+
+- name: Render the Report Template
+  template: 
+    src: "templates/report_host.csv.j2" 
+    dest: "{{ playbook_dir }}/reports/fragments/{{ inventory_hostname }}.csv"
+  delegate_to: localhost
+
+- block:
+    - name: Transition the issue
+      jira:
+        uri: https://ansiblelab.atlassian.net
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
+        issue: '{{ issue.meta.key }}'
+        operation: transition
+        status: In Progress
+      delegate_to: localhost
+        
+    - name: Install Updates
+      win_updates:
+        category_names: "{{ categories }}"
+        reboot: "{{ reboot_server }}"
+        reboot_timeout: 3600
+        state: searched
+      register: update_result
+
+    - name: Add Updates to Jira issue
+      jira:
+        uri: https://ansiblelab.atlassian.net
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
+        issue: '{{ issue.meta.key }}'
+        operation: comment
+        comment: "{{ update_result.updates | to_yaml }}"
+      delegate_to: localhost
+      
+    - name: Transition the issue
+      jira:
+        uri: https://ansiblelab.atlassian.net
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
+        issue: '{{ issue.meta.key }}'
+        operation: transition
+        status: Done
+      delegate_to: localhost
+  
+  rescue:
+    - name: Revert the VMWare snapshot
+      vmware_guest_snapshot:
+        datacenter: MNS
+        folder: /MNS/vm/POC/Demo
+        name: "{{ inventory_hostname }}"
+        snapshot_name: Updates
+        state: revert
+      delegate_to: localhost
+      
+    - name: Comment on issue
+      jira:
+        uri: https://ansiblelab.atlassian.net
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
+        issue: '{{ issue.meta.key }}'
+        operation: comment
+        comment: |
+                 Updates Failed
+                 Reverted Snapshot
+      delegate_to: localhost
+
+    - name: Transition the issue
+      jira:
+        uri: https://ansiblelab.atlassian.net
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
+        issue: '{{ issue.meta.key }}'
+        operation: transition
+        status: Failed
+      delegate_to: localhost
+
+- name: Remove VMWare snapshot
+  vmware_guest_snapshot:
+    datacenter: MNS
+    folder: /MNS/vm/POC/Demo
+    name: "{{ inventory_hostname }}"
+    snapshot_name: Updates
+    state: absent
+  delegate_to: localhost
+
+- name: Comment on issue
+  jira:
+    uri: https://ansiblelab.atlassian.net
+    username: '{{ jira_username }}'
+    password: '{{ jira_password }}'
+    issue: '{{ issue.meta.key }}'
+    operation: comment
+    comment: Removed Snapshot
+  delegate_to: localhost
+
+- name: Render the Full Report Template
+  template: 
+    src: "templates/report.csv.j2" 
+    dest: "{{ playbook_dir }}/reports/fragments/{{ inventory_hostname }}.csv"
+  delegate_to: localhost
