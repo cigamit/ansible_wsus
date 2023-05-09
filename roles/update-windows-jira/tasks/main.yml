@@ -1,5 +1,5 @@
 - name: Create an issue in Jira
-  jira:
+  community.general.jira:
     uri: https://ansiblelab.atlassian.net
     username: '{{ jira_username }}'
     password: '{{ jira_password }}'
@@ -15,7 +15,7 @@
   delegate_to: localhost
 
 - name: Set the labels on an issue using free-form fields
-  jira:
+  community.general.jira:
     uri: https://ansiblelab.atlassian.net
     username: '{{ jira_username }}'
     password: '{{ jira_password }}'
@@ -41,7 +41,7 @@
   delegate_to: localhost
 
 - name: Add Comment on Jira issue
-  jira:
+  community.general.jira:
     uri: https://ansiblelab.atlassian.net
     username: '{{ jira_username }}'
     password: '{{ jira_password }}'
@@ -58,7 +58,7 @@
 
 - block:
     - name: Transition the issue
-      jira:
+      community.general.jira:
         uri: https://ansiblelab.atlassian.net
         username: '{{ jira_username }}'
         password: '{{ jira_password }}'
@@ -76,7 +76,7 @@
       register: update_result
 
     - name: Add Updates to Jira issue
-      jira:
+      community.general.jira:
         uri: https://ansiblelab.atlassian.net
         username: '{{ jira_username }}'
         password: '{{ jira_password }}'
@@ -86,7 +86,7 @@
       delegate_to: localhost
       
     - name: Transition the issue
-      jira:
+      community.general.jira:
         uri: https://ansiblelab.atlassian.net
         username: '{{ jira_username }}'
         password: '{{ jira_password }}'
@@ -106,7 +106,7 @@
       delegate_to: localhost
       
     - name: Comment on issue
-      jira:
+      community.general.jira:
         uri: https://ansiblelab.atlassian.net
         username: '{{ jira_username }}'
         password: '{{ jira_password }}'
@@ -118,7 +118,7 @@
       delegate_to: localhost
 
     - name: Transition the issue
-      jira:
+      community.general.jira:
         uri: https://ansiblelab.atlassian.net
         username: '{{ jira_username }}'
         password: '{{ jira_password }}'
@@ -137,7 +137,7 @@
   delegate_to: localhost
 
 - name: Comment on issue
-  jira:
+  community.general.jira:
     uri: https://ansiblelab.atlassian.net
     username: '{{ jira_username }}'
     password: '{{ jira_password }}'
