@@ -1,0 +1,5 @@
+- name: Install Windows Updates
+  hosts: all
+  roles:
+    - configure-update
+    - update-windows
