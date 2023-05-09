@@ -1,0 +1,51 @@
+- name: Install Windows Updates
+  hosts: all
+
+  pre_tasks:
+    - name: Ensure Reports directories exist
+      file:
+         state: directory
+         path: "{{ playbook_dir }}/reports/fragments/"
+      delegate_to: localhost
+      run_once: true 
+
+    - name: Ensure fragments directory is empty
+      file:
+         state: absent
+         path: "{{ playbook_dir }}/reports/fragments/*"
+      delegate_to: localhost
+      run_once: true 
+
+  roles:
+    - update-windows-jira
+
+  post_tasks:
+    - name: Concat all the csv files 
+      assemble: 
+        src: "{{ playbook_dir }}/reports/fragments/"
+        dest: "{{ playbook_dir }}/reports/updates.csv"
+      delegate_to: localhost
+      run_once: true 
+
+    - name: Append the header to the csv file 
+      lineinfile: 
+        dest: "{{ playbook_dir }}/reports/updates.csv"
+        insertbefore: BOF 
+        line: "Hostname,Rebooted,Found Updates,Installed Updates,Failed Updates,Installed KBs,Failed KBs" 
+      delegate_to: localhost
+      run_once: true
+
+    - name: Mail Report
+      mail:
+        host: "{{ smpt_host }}
+        port: 25
+        subject: Windows Update Report
+        body: Windows Update Report
+        from: "{{ from_email }}"
+        to:
+          - "{{ email }}"
+        attach:
+          - "{{ playbook_dir }}/reports/updates.csv"
+      delegate_to: localhost
+      run_once: true
+      ignore_errors: true
