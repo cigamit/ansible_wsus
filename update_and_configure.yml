@@ -2,4 +2,4 @@
   hosts: all
   roles:
     - configure-update
-    - update-windows
+    - update-windows-wsus
