@@ -37,7 +37,7 @@
 
     - name: Mail Report
       mail:
-        host: "{{ smpt_host }}
+        host: "{{ smpt_host }}"
         port: 25
         subject: Windows Update Report
         body: Windows Update Report
