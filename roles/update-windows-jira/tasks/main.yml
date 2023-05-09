@@ -1,9 +1,8 @@
 - name: Create an issue in Jira
   community.general.jira:
     uri: https://ansiblelab.atlassian.net
-    #username: '{{ jira_username }}'
-    #password: '{{ jira_password }}'
-    token: "{{ jira_token }}"
+    username: '{{ jira_username }}'
+    password: '{{ jira_password }}'
     project: AN
     operation: create
     summary: Windows Updates - {{ inventory_hostname }}
@@ -18,9 +17,8 @@
 - name: Set the labels on an issue using free-form fields
   community.general.jira:
     uri: https://ansiblelab.atlassian.net
-    #username: '{{ jira_username }}'
-    #password: '{{ jira_password }}'
-    token: "{{ jira_token }}"
+    username: '{{ jira_username }}'
+    password: '{{ jira_password }}'
     issue: '{{ issue.meta.key }}'
     operation: edit
   args:
@@ -45,9 +43,8 @@
 - name: Add Comment on Jira issue
   community.general.jira:
     uri: https://ansiblelab.atlassian.net
-    #username: '{{ jira_username }}'
-    #password: '{{ jira_password }}'
-    token: "{{ jira_token }}"
+    username: '{{ jira_username }}'
+    password: '{{ jira_password }}'
     issue: '{{ issue.meta.key }}'
     operation: comment
     comment: Snapshot Created
@@ -63,9 +60,8 @@
     - name: Transition the issue
       community.general.jira:
         uri: https://ansiblelab.atlassian.net
-        #username: '{{ jira_username }}'
-        #password: '{{ jira_password }}'
-        token: "{{ jira_token }}"
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
         issue: '{{ issue.meta.key }}'
         operation: transition
         status: In Progress
@@ -82,9 +78,8 @@
     - name: Add Updates to Jira issue
       community.general.jira:
         uri: https://ansiblelab.atlassian.net
-        #username: '{{ jira_username }}'
-        #password: '{{ jira_password }}'
-        token: "{{ jira_token }}"
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
         issue: '{{ issue.meta.key }}'
         operation: comment
         comment: "{{ update_result.updates | to_yaml }}"
@@ -93,9 +88,8 @@
     - name: Transition the issue
       community.general.jira:
         uri: https://ansiblelab.atlassian.net
-        #username: '{{ jira_username }}'
-        #password: '{{ jira_password }}'
-        token: "{{ jira_token }}"
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
         issue: '{{ issue.meta.key }}'
         operation: transition
         status: Done
@@ -114,9 +108,8 @@
     - name: Comment on issue
       community.general.jira:
         uri: https://ansiblelab.atlassian.net
-        #username: '{{ jira_username }}'
-        #password: '{{ jira_password }}'
-        token: "{{ jira_token }}"
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
         issue: '{{ issue.meta.key }}'
         operation: comment
         comment: |
@@ -127,9 +120,8 @@
     - name: Transition the issue
       community.general.jira:
         uri: https://ansiblelab.atlassian.net
-        #username: '{{ jira_username }}'
-        #password: '{{ jira_password }}'
-        token: "{{ jira_token }}"
+        username: '{{ jira_username }}'
+        password: '{{ jira_password }}'
         issue: '{{ issue.meta.key }}'
         operation: transition
         status: Failed
@@ -147,9 +139,8 @@
 - name: Comment on issue
   community.general.jira:
     uri: https://ansiblelab.atlassian.net
-    #username: '{{ jira_username }}'
-    #password: '{{ jira_password }}'
-    token: "{{ jira_token }}"
+    username: '{{ jira_username }}'
+    password: '{{ jira_password }}'
     issue: '{{ issue.meta.key }}'
     operation: comment
     comment: Removed Snapshot
